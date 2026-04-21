@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopSmart | Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .order-card {
+            border-left: 4px solid var(--accent);
+            margin-bottom: 1.5rem;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .order-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .status-placed { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .status-shipped { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .status-delivered { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .status-cancelled { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .order-items { display: flex; flex-direction: column; gap: 0.5rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">ShopSmart.</a>
+            <div style="display: flex; gap: 2rem; align-items: center;">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                </ul>
+                <ul class="nav-links" id="auth-links">
+                    <li><a href="auth.html">Login</a></li>
+                    <li><a href="auth.html?mode=signup" class="btn">Sign Up</a></li>
+                </ul>
+                <ul class="nav-links hidden" id="user-links">
+                    <li><a href="dashboard.html" style="color: var(--accent);">Dashboard</a></li>
+                    <li><a href="cancel-orders.html">Cancel Orders</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                    <li>
+                        <div class="profile-dropdown" onclick="toggleProfileDropdown(event)">
+                            <div class="profile-icon" id="profile-initials">U</div>
+                            <div id="profileDropdown" class="dropdown-content">
+                                <div class="dropdown-header">
+                                    <strong id="profile-name">User</strong>
+                                    <span id="profile-email">user@example.com</span>
+                                </div>
+                                <a href="#" onclick="logout()">Logout</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <h1 class="mb-2">My Dashboard</h1>
+
+        <div class="grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2rem; gap: 1.5rem;">
+            <div class="card summary-card" onclick="filterOrders('all')" style="cursor: pointer; text-align: center; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <h3>Total Orders</h3>
+                <h2 id="total-count" style="color: var(--accent); margin-top: 0.5rem; font-size: 2.5rem;">0</h2>
+            </div>
+            <div class="card summary-card" onclick="filterOrders('active')" style="cursor: pointer; text-align: center; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <h3>Active Orders</h3>
+                <h2 id="active-count" style="color: #34d399; margin-top: 0.5rem; font-size: 2.5rem;">0</h2>
+            </div>
+            <div class="card summary-card" onclick="filterOrders('cancelled')" style="cursor: pointer; text-align: center; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <h3>Cancelled Orders</h3>
+                <h2 id="cancelled-count" style="color: #ef4444; margin-top: 0.5rem; font-size: 2.5rem;">0</h2>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="mb-1" id="history-title">All Orders</h3>
+            <div id="orders-container">
+                <p class="text-muted">Loading orders...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 ShopSmart. All rights reserved.</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let allOrders = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!localStorage.getItem('token')) {
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            try {
+                allOrders = await api.orders.getAll();
+                updateCounts();
+                renderOrders(allOrders);
+            } catch (err) {
+                console.error(err);
+                if(err.message === 'Token is not valid' || err.message === 'No token, authorization denied' || err.message.includes('Unexpected token')) {
+                    logout();
+                }
+            }
+        });
+
+        function updateCounts() {
+            document.getElementById('total-count').textContent = allOrders.length;
+            document.getElementById('active-count').textContent = allOrders.filter(o => o.status === 'Placed' || o.status === 'Shipped').length;
+            document.getElementById('cancelled-count').textContent = allOrders.filter(o => o.status === 'Cancelled').length;
+        }
+
+        function filterOrders(type) {
+            let filtered = allOrders;
+            let title = 'All Orders';
+            if (type === 'active') {
+                filtered = allOrders.filter(o => o.status === 'Placed' || o.status === 'Shipped');
+                title = 'Active Orders';
+            } else if (type === 'cancelled') {
+                filtered = allOrders.filter(o => o.status === 'Cancelled');
+                title = 'Cancelled Orders';
+            }
+            document.getElementById('history-title').textContent = title;
+            renderOrders(filtered);
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById('orders-container');
+            if (orders.length === 0) {
+                container.innerHTML = '<p class="text-muted">You have no orders yet.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            orders.forEach(order => {
+                const date = new Date(order.createdAt).toLocaleDateString();
+                const statusClass = `status-${order.status.toLowerCase()}`;
+                
+                let itemsHtml = '';
+                order.products.forEach(item => {
+                    const p = item.productId;
+                    if(p) {
+                        itemsHtml += `<div class="flex space-between">
+                            <span>${item.quantity}x ${p.name}</span>
+                            <span>$${(p.price * item.quantity).toFixed(2)}</span>
+                        </div>`;
+                    }
+                });
+
+                container.innerHTML += `
+                    <div class="card order-card">
+                        <div class="order-header">
+                            <div>
+                                <strong>Order #${order._id.substring(18)}</strong>
+                                <div class="text-muted" style="font-size: 0.9rem;">Placed on ${date}</div>
+                            </div>
+                            <span class="order-status ${statusClass}">${order.status}</span>
+                        </div>
+                        <div class="order-items mb-1">
+                            ${itemsHtml}
+                        </div>
+                        <hr style="border-color: var(--border); margin: 0.5rem 0;">
+                        <div class="flex space-between" style="font-weight: bold;">
+                            <span>Total</span>
+                            <span>$${order.totalAmount.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

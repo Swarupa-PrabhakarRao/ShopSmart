@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopSmart | Discover Premium Products</title>
+    <meta name="description" content="ShopSmart offers premium products perfectly suited for your lifestyle.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">ShopSmart.</a>
+            <div style="display: flex; gap: 2rem; align-items: center;">
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="products.html">Products</a></li>
+                </ul>
+                <ul class="nav-links" id="auth-links">
+                    <li><a href="auth.html">Login</a></li>
+                    <li><a href="auth.html?mode=signup" class="btn">Sign Up</a></li>
+                </ul>
+                <ul class="nav-links hidden" id="user-links">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="cancel-orders.html">Cancel Orders</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                    <li>
+                        <div class="profile-dropdown" onclick="toggleProfileDropdown(event)">
+                            <div class="profile-icon" id="profile-initials">U</div>
+                            <div id="profileDropdown" class="dropdown-content">
+                                <div class="dropdown-header">
+                                    <strong id="profile-name">User</strong>
+                                    <span id="profile-email">user@example.com</span>
+                                </div>
+                                <a href="#" onclick="logout()">Logout</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero">
+            <h1>Personalized Product Discovery</h1>
+            <h2 class="mb-1" style="font-size: 2rem; color: var(--accent); margin-top: 1rem;">Welcome to ShopSmart</h2>
+            <p style="font-size: 1.1rem; color: var(--text-muted); max-width: 800px; margin: 0 auto 2rem; line-height: 1.8;">
+                ShopSmart is your ultimate destination for premium, high-quality products curated just for you. 
+                Whether you're looking for the latest electronics, fashionable apparel, or essential groceries, 
+                we ensure top-notch quality and a seamless shopping experience. Our mission is to connect you 
+                with the best products on the market with exceptional customer service and fast delivery.
+            </p>
+            <a href="products.html" class="btn btn-secondary">Explore Our Catalog</a>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 ShopSmart. All rights reserved.</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Homepage is now static and informational.
+        });
+    </script>
+</body>
+</html>
